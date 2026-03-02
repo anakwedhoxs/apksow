@@ -45,14 +45,14 @@ class SowCpuExport implements
             return [];
         }
 
-        $drawing = new Drawing();
-        $drawing->setName('Logo');
-        $drawing->setDescription('Logo Perusahaan');
-        $drawing->setPath($logoPath);
-        $drawing->setHeight(40);
-        $drawing->setCoordinates('A3');
-        $drawing->setOffsetX(10);
-        $drawing->setOffsetY(5);
+        $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing(); 
+        $drawing->setName('Logo PT'); 
+        $drawing->setDescription('Logo perusahaan'); 
+        $drawing->setPath($logoPath); // pastikan file ada 
+        $drawing->setHeight(20);// sesuaikan tinggi agar proporsional$drawing->setCoordinates('A4'); // posisi tepat di sel A4 $drawing->setOffsetX(10); // geser sedikit ke kanan $drawing->setOffsetY(5); // geser sedikit ke bawah
+        $drawing->setCoordinates('A4'); // posisi tepat di sel A4 
+        $drawing->setOffsetX(10); // geser sedikit ke kanan 
+        $drawing->setOffsetY(2); // geser sedikit ke bawah
 
         return [$drawing];
     }
@@ -84,8 +84,8 @@ class SowCpuExport implements
             strtoupper(($sow->prosesor?->Merk ?? '-') . ' ' . ($sow->prosesor?->Seri ?? '')),
             strtoupper(($sow->ram?->Merk ?? '-') . ' ' . ($sow->ram?->Seri ?? '')),
             strtoupper(($sow->motherboard?->Merk ?? '-') . ' ' . ($sow->motherboard?->Seri ?? '')),
-            optional($sow->tanggal_perbaikan)->format('d/m/Y') ?? '-',
-            optional($sow->tanggal_penggunaan)->format('d/m/Y') ?? '-',
+            optional($sow->tanggal_perbaikan)->format('d-m-Y') ?? '-',
+            optional($sow->tanggal_penggunaan)->format('d-m-Y') ?? '-',
             $sow->helpdesk ? 'V' : '',
             $sow->form ? 'V' : '',
             $sow->nomor_perbaikan ?? '-',

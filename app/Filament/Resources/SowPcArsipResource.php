@@ -14,7 +14,7 @@ class SowPcArsipResource extends Resource
 {
     protected static ?string $model = SowPcArsip::class;
     protected static ?string $navigationLabel = 'Arsip SOW PC';
-    protected static ?string $navigationGroup = 'SOW';
+    protected static ?string $navigationGroup = 'Arsip SOW';
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 
     public static function form(Forms\Form $form): Forms\Form

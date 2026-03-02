@@ -16,6 +16,8 @@ use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
 use Filament\Notifications\Notification;
 use Maatwebsite\Excel\Facades\Excel;
+use Filament\Tables\Columns\IconColumn;
+
 
 class SOWResource extends Resource
 {
@@ -192,6 +194,13 @@ class SOWResource extends Resource
                 Tables\Columns\TextColumn::make('inventaris.Seri')->label('Seri'),
                 Tables\Columns\TextColumn::make('tanggal_penggunaan')->date(),
                 Tables\Columns\TextColumn::make('tanggal_perbaikan')->date(),
+                IconColumn::make('form')
+                    ->label('Form')
+                    ->boolean(),
+
+                IconColumn::make('helpdesk')
+                    ->label('Helpdesk')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('nomor_perbaikan'),
                 Tables\Columns\TextColumn::make('hostname.nama')
                     ->label('Hostname')

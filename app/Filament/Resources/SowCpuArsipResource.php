@@ -15,10 +15,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SowCpuArsipResource extends Resource
 {
-  protected static ?string $model = SowCpuArsip::class;
+    protected static ?string $model = SowCpuArsip::class;
     protected static ?string $navigationLabel = 'Arsip SOW CPU';
-    protected static ?string $navigationGroup = 'SOW';
+    protected static ?string $navigationGroup = 'Arsip SOW';
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
+    
 
     public static function form(Forms\Form $form): Forms\Form
     {

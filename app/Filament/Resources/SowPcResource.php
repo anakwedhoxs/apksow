@@ -15,12 +15,13 @@ use Filament\Notifications\Notification;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SowPcExport;
 use App\Models\SowPcArsip;
+use Filament\Tables\Columns\IconColumn;
 
 class SowPcResource extends Resource
 {
     protected static ?string $model = SowPc::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+        protected static ?string $navigationIcon = 'heroicon-s-queue-list';
     protected static ?string $navigationLabel = 'Data SOW PC';
     protected static ?string $navigationGroup = 'SOW';
 
@@ -175,6 +176,13 @@ class SowPcResource extends Resource
                     ->label('Motherboard'),
                     Tables\Columns\TextColumn::make('tanggal_penggunaan')->date(),
                 Tables\Columns\TextColumn::make('tanggal_perbaikan')->date(),
+                IconColumn::make('form')
+                    ->label('Form')
+                    ->boolean(),
+
+                IconColumn::make('helpdesk')
+                    ->label('Helpdesk')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('nomor_perbaikan'),
                 Tables\Columns\TextColumn::make('hostname.nama')
                     ->label('Hostname')
@@ -231,76 +239,77 @@ class SowPcResource extends Resource
                     }),
 
                     Action::make('arsipkan')
-    ->label('Arsipkan')
-    ->icon('heroicon-o-archive-box')
-    ->color('warning')
-    ->form([
-        Forms\Components\TextInput::make('nama_arsip')
-            ->label('Nama Arsip')
-            ->required(),
-    ])
-    ->requiresConfirmation()
-    ->action(function(array $data) {
-        if (\App\Models\SowPc::count() === 0) {
-            Notification::make()
-                ->title('Data SOW PC kosong')
-                ->danger()
-                ->send();
-            return;
-        }
+                        ->label('Arsipkan')
+                        ->icon('heroicon-o-archive-box')
+                        ->color('warning')
+                        ->disabled(fn () => SowPc::whereNull('status')->orWhere('status', true)->exists())
+                        ->form([
+                            Forms\Components\TextInput::make('nama_arsip')
+                                ->label('Nama Arsip')
+                                ->required(),
+                        ])
+                        ->requiresConfirmation()
+                        ->action(function(array $data) {
+                            if (\App\Models\SowPc::count() === 0) {
+                                Notification::make()
+                                    ->title('Data SOW PC kosong')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
 
-        // Buat arsip
-        $arsip = \App\Models\SowPcArsip::create([
-            'nama_arsip' => $data['nama_arsip'],
-            'keterangan' => 'Diarsipkan dari menu SOW PC',
-        ]);
+                            // Buat arsip
+                            $arsip = \App\Models\SowPcArsip::create([
+                                'nama_arsip' => $data['nama_arsip'],
+                                'keterangan' => 'Diarsipkan dari menu SOW PC',
+                            ]);
 
-        // Masukkan semua SOW PC ke arsip item
-        \App\Models\SowPc::chunk(50, function($pcs) use ($arsip) {
-            foreach($pcs as $pc) {
-                \App\Models\SowPcArsipItem::create([
-                    'sow_pc_arsip_id' => $arsip->id,
-                    'case_id' => $pc->case_id,
-                    'psu_id' => $pc->psu_id,
-                    'prosesor_id' => $pc->prosesor_id,
-                    'ram_id' => $pc->ram_id,
-                    'motherboard_id' => $pc->motherboard_id,
-                    'tanggal_penggunaan' => $pc->tanggal_penggunaan,
-                    'tanggal_perbaikan' => $pc->tanggal_perbaikan,
-                    'helpdesk' => $pc->helpdesk,
-                    'form' => $pc->form,
-                    'nomor_perbaikan' => $pc->nomor_perbaikan,
-                    'hostname_id' => $pc->hostname_id,
-                    'divisi' => $pc->divisi,
-                    'pic_id' => $pc->pic_id,
-                    'keterangan' => $pc->keterangan,
-                    'foto' => $pc->foto,
-                    'status' => $pc->status,
-                ]);
-            }
-        });
+                            // Masukkan semua SOW PC ke arsip item
+                            \App\Models\SowPc::chunk(50, function($pcs) use ($arsip) {
+                                foreach($pcs as $pc) {
+                                    \App\Models\SowPcArsipItem::create([
+                                        'sow_pc_arsip_id' => $arsip->id,
+                                        'case_id' => $pc->case_id,
+                                        'psu_id' => $pc->psu_id,
+                                        'prosesor_id' => $pc->prosesor_id,
+                                        'ram_id' => $pc->ram_id,
+                                        'motherboard_id' => $pc->motherboard_id,
+                                        'tanggal_penggunaan' => $pc->tanggal_penggunaan,
+                                        'tanggal_perbaikan' => $pc->tanggal_perbaikan,
+                                        'helpdesk' => $pc->helpdesk,
+                                        'form' => $pc->form,
+                                        'nomor_perbaikan' => $pc->nomor_perbaikan,
+                                        'hostname_id' => $pc->hostname_id,
+                                        'divisi' => $pc->divisi,
+                                        'pic_id' => $pc->pic_id,
+                                        'keterangan' => $pc->keterangan,
+                                        'foto' => $pc->foto,
+                                        'status' => $pc->status,
+                                    ]);
+                                }
+                            });
 
-        // Kosongkan tabel SOW PC
-        \App\Models\SowPc::truncate();
+                            // Kosongkan tabel SOW PC
+                            \App\Models\SowPc::truncate();
 
-        Notification::make()
-            ->title('Data SOW PC berhasil diarsipkan')
-            ->success()
-            ->send();
-    }),
+                            Notification::make()
+                                ->title('Data SOW PC berhasil diarsipkan')
+                                ->success()
+                                ->send();
+                        }),
 
-            ])      
-             ->actions([
-                Tables\Actions\ActionGroup::make([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                ])
-                ->label('More') 
-                ->icon('heroicon-m-ellipsis-vertical') 
-                ->color('primary')
-            ]);
-    }
+                                ])      
+                                ->actions([
+                                    Tables\Actions\ActionGroup::make([
+                                    Tables\Actions\EditAction::make(),
+                                    Tables\Actions\ViewAction::make(),
+                                    Tables\Actions\DeleteAction::make(),
+                                    ])
+                                    ->label('More') 
+                                    ->icon('heroicon-m-ellipsis-vertical') 
+                                    ->color('primary')
+                                ]);
+                        }
 
     public static function getPages(): array
     {

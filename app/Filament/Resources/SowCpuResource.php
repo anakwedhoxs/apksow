@@ -16,14 +16,14 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SowCpuExport;
 use Filament\Tables\Actions\Action;
 use Filament\Notifications\Notification;
-
+use Filament\Tables\Columns\IconColumn;
 
 class SowCpuResource extends Resource
 {
     protected static ?string $model = SowCpu::class;
 
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-s-queue-list';
     protected static ?string $navigationLabel = 'Data SOW CPU';
     protected static ?string $navigationGroup = 'SOW';
 
@@ -91,8 +91,8 @@ class SowCpuResource extends Resource
                 Forms\Components\Grid::make(2)
                     ->columnSpan(2)
                     ->schema([
-                        Forms\Components\Checkbox::make('form'),
-                        Forms\Components\Checkbox::make('helpdesk'),
+                Forms\Components\Checkbox::make('form'),
+                Forms\Components\Checkbox::make('helpdesk'),
                     ]),
                 Forms\Components\TextInput::make('nomor_perbaikan'),
                 Forms\Components\Select::make('hostname_id')
@@ -159,6 +159,13 @@ class SowCpuResource extends Resource
                     ->label('Motherboard'),
                     Tables\Columns\TextColumn::make('tanggal_penggunaan')->date(),
                 Tables\Columns\TextColumn::make('tanggal_perbaikan')->date(),
+                IconColumn::make('form')
+                    ->label('Form')
+                    ->boolean(),
+
+                IconColumn::make('helpdesk')
+                    ->label('Helpdesk')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('nomor_perbaikan'),
                 Tables\Columns\TextColumn::make('hostname.nama')
                     ->label('Hostname')
@@ -218,6 +225,7 @@ class SowCpuResource extends Resource
 
                 Action::make('arsipkan')
     ->label('Arsipkan')
+    ->disabled(fn () => SowCpu::whereNull('status')->orWhere('status', true)->exists())
     ->icon('heroicon-o-archive-box')
     ->color('warning')
     ->form([
