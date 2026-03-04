@@ -193,23 +193,23 @@ class SowCpuResource extends Resource
             ])
             ->headerActions([
             Action::make('export')
-                ->label('Export')
-                ->icon('heroicon-o-arrow-down-tray')
-                ->disabled(fn () => SowCpu::whereNull('status')->orWhere('status', true)->exists())
-                ->color('primary')
-                //->disabled(fn () => Sow::whereNull('status')->orWhere('status', true)->exists())
-                ->action(function () {
+    ->label('Export')
+    ->icon('heroicon-o-arrow-down-tray')
+    ->color('primary')
+    ->disabled(fn () => SowCpu::whereNull('status')->orWhere('status', true)->exists())
+    ->action(function ($livewire) {
 
+        // ambil filter divisi dari table
+        $divisi = $livewire->tableFilters['divisi']['value'] ?? null;
 
-                            $tanggal = now()->format('d-m-Y');
-                            $namaFile = "data-sow-CPU-{$tanggal}.xlsx";
+        $tanggal = now()->format('d-m-Y');
+        $namaFile = "data-sow-CPU-{$divisi}-{$tanggal}.xlsx";
 
-
-                            return Excel::download(
-                                new SowCpuExport(),
-                                $namaFile
-                            );
-                        }),
+        return Excel::download(
+            new SowCpuExport($divisi),
+            $namaFile
+        );
+    }),
                          Action::make('accept')
                 ->label('Accept')
                 ->icon('heroicon-o-check-circle')

@@ -209,21 +209,24 @@ class SowPcResource extends Resource
         
             ])
             ->headerActions([
-            Action::make('export')
-                ->label('Export')
-                ->icon('heroicon-o-arrow-down-tray')
-                ->color('primary')
-                ->disabled(fn () => SowPc::whereNull('status')->orWhere('status', true)->exists())
-                ->action(function () {
+           Action::make('export')
+    ->label('Export')
+    ->icon('heroicon-o-arrow-down-tray')
+    ->color('primary')
+    ->disabled(fn () => SowPc::whereNull('status')->orWhere('status', true)->exists())
+    ->action(function ($livewire) {
 
-                            $tanggal = now()->format('d-m-Y');
-                            $namaFile = "data-sow-PC-{$tanggal}.xlsx";
+        // Ambil filter divisi dari table
+        $divisi = $livewire->tableFilters['divisi']['value'] ?? null;
 
-                            return Excel::download(
-                                new SowPcExport(),
-                                $namaFile
-                            );
-                        }),
+        $tanggal = now()->format('d-m-Y');
+        $namaFile = "data-sow-PC-{$divisi}-{$tanggal}.xlsx";
+
+        return Excel::download(
+            new SowPcExport($divisi),
+            $namaFile
+        );
+    }),
 
                 Action::make('accept')
                     ->label('Accept')

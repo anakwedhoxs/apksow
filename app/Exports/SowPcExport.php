@@ -34,11 +34,15 @@ class SowPcExport implements
     */
     public function drawings()
     {
-        $logoPath = public_path('images/Logo_cargloss_Paint.png');
+        $logoPath = match (strtoupper($this->divisi)) {
+            'MKM' => public_path('images/mkm.png'),
+            'PPG' => public_path('images/ppg.png'),
+            'MKP' => public_path('images/MKP.png'),
+            'MCP' => public_path('images/MCP.png'),
+            'PPM' => public_path('images/PPM.png'),
+            default => public_path('images/Logo_cargloss_Paint.png'),
+        };
 
-        if (!file_exists($logoPath)) {
-            return [];
-        }
 
         $drawing = new Drawing();
         $drawing->setName('Logo');

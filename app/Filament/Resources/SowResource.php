@@ -227,20 +227,23 @@ class SOWResource extends Resource
             ])
         ->headerActions([
             Action::make('export')
-                ->label('Export')
-                ->icon('heroicon-o-arrow-down-tray')
-                ->color('primary')
-                ->disabled(fn () => Sow::whereNull('status')->orWhere('status', true)->exists())
-                ->action(function () {
+    ->label('Export')
+    ->icon('heroicon-o-arrow-down-tray')
+    ->color('primary')
+    ->disabled(fn () => Sow::whereNull('status')->orWhere('status', true)->exists())
+    ->action(function ($livewire) {
 
-                            $tanggal = now()->format('d-m-Y');
-                            $namaFile = "data-sow-{$tanggal}.xlsx";
+        // Ambil filter divisi dari table
+        $divisi = $livewire->tableFilters['divisi']['value'] ?? null;
 
-                            return Excel::download(
-                                new SowExport(),
-                                $namaFile
-                            );
-                        }),
+        $tanggal = now()->format('d-m-Y');
+        $namaFile = "data-sow-{$divisi}-{$tanggal}.xlsx";
+
+        return Excel::download(
+            new SowExport($divisi),
+            $namaFile
+        );
+    }),
 
             Action::make('accept')
                 ->label('Accept')
