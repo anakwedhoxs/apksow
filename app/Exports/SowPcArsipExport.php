@@ -20,39 +20,13 @@ class SowPcArsipExport implements
     WithCustomStartCell,
     WithDrawings
 {
+    protected int $arsipId;
     protected ?string $divisi;
 
-    public function __construct(?string $divisi = null)
+    public function __construct(int $arsipId, ?string $divisi = null)
     {
+        $this->arsipId = $arsipId;
         $this->divisi = $divisi;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOGO
-    |--------------------------------------------------------------------------
-    */
-    public function drawings()
-    {
-        $logoPath = match (strtoupper($this->divisi)) {
-            'MKM' => public_path('images/mkm.png'),
-            'PPG' => public_path('images/ppg.png'),
-            'MKP' => public_path('images/MKP.png'),
-            'MCP' => public_path('images/MCP.png'),
-            'PPM' => public_path('images/PPM.png'),
-            default => public_path('images/Logo_cargloss_Paint.png'),
-        };
-
-        $drawing = new Drawing();
-        $drawing->setName('Logo');
-        $drawing->setDescription('Logo Perusahaan');
-        $drawing->setPath($logoPath);
-        $drawing->setHeight(25);
-        $drawing->setCoordinates('A4');
-        $drawing->setOffsetX(10);
-        $drawing->setOffsetY(5);
-
-        return [$drawing];
     }
 
     /*
@@ -63,14 +37,9 @@ class SowPcArsipExport implements
     public function collection()
     {
         return SowPcArsipItem::with([
-                'case',
-                'psu',
-                'prosesor',
-                'ram',
-                'motherboard',
-                'hostname',
-                'arsip' // relasi ke SowPcArsip
+                'case','psu','prosesor','ram','motherboard','hostname','arsip'
             ])
+            ->where('sow_pc_arsip_id', $this->arsipId)
             ->when($this->divisi, fn (Builder $q) =>
                 $q->where('divisi', $this->divisi)
             )
@@ -104,12 +73,40 @@ class SowPcArsipExport implements
 
     /*
     |--------------------------------------------------------------------------
-    | START ROW
+    | START CELL
     |--------------------------------------------------------------------------
     */
     public function startCell(): string
     {
         return 'A8';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOGO
+    |--------------------------------------------------------------------------
+    */
+    public function drawings()
+    {
+        $logoPath = match (strtoupper($this->divisi)) {
+            'MKM' => public_path('images/mkm.png'),
+            'PPG' => public_path('images/ppg.png'),
+            'MKP' => public_path('images/MKP.png'),
+            'MCP' => public_path('images/MCP.png'),
+            'PPM' => public_path('images/PPM.png'),
+            default => public_path('images/Logo_cargloss_Paint.png'),
+        };
+
+        $drawing = new Drawing();
+        $drawing->setName('Logo');
+        $drawing->setDescription('Logo Perusahaan');
+        $drawing->setPath($logoPath);
+        $drawing->setHeight(25);
+        $drawing->setCoordinates('A4');
+        $drawing->setOffsetX(10);
+        $drawing->setOffsetY(5);
+
+        return [$drawing];
     }
 
     /*
@@ -148,11 +145,7 @@ class SowPcArsipExport implements
                 'allBorders' => ['borderStyle' => 'thin'],
             ],
         ]);
-
-        $sheet->getStyle('I2:L2')->applyFromArray([
-            'font' => ['bold' => true],
-        ]);
-
+        $sheet->getStyle('I2:L2')->applyFromArray(['font' => ['bold' => true]]);
         $sheet->getStyle('I2:L4')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('I2:L4')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
 
@@ -166,13 +159,12 @@ class SowPcArsipExport implements
 
         $sheet->mergeCells('G6:H6');
         $sheet->setCellValue('G6', 'SPPI');
+        $sheet->setCellValue('G7', 'Helpdesk');
+        $sheet->setCellValue('H7', 'Form');
 
         $sheet->setCellValue('I6', 'Nomor Perbaikan');
         $sheet->setCellValue('J6', 'Hostname');
         $sheet->setCellValue('K6', 'Keterangan');
-
-        $sheet->setCellValue('G7', 'Helpdesk');
-        $sheet->setCellValue('H7', 'Form');
 
         foreach (['A','B','C','D','E','F','I','J','K'] as $col) {
             $sheet->mergeCells("{$col}6:{$col}7");
@@ -207,11 +199,7 @@ class SowPcArsipExport implements
 
         // Wrap Text + Auto Height
         $lastRow = $sheet->getHighestRow();
-
-        $sheet->getStyle("B8:K{$lastRow}")
-            ->getAlignment()
-            ->setWrapText(true);
-
+        $sheet->getStyle("B8:K{$lastRow}")->getAlignment()->setWrapText(true);
         for ($i = 8; $i <= $lastRow; $i++) {
             $sheet->getRowDimension($i)->setRowHeight(-1);
         }
@@ -224,15 +212,10 @@ class SowPcArsipExport implements
 
         // Alignment Data
         $sheet->getStyle("A8:A{$lastRow}")
-            ->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
+            ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle("G8:H{$lastRow}")
-            ->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
+            ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle("E8:F{$lastRow}")
-            ->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
     }
 }
