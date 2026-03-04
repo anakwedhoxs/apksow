@@ -12,6 +12,11 @@ class SowCpuArsipItem extends Model
         'hostname_id','divisi','pic_id','keterangan','foto','status'
     ];
 
+    protected $casts = [
+    'tanggal_penggunaan' => 'date',
+    'tanggal_perbaikan' => 'date',
+];
+
     public function arsip()
     {
         return $this->belongsTo(SowCpuArsip::class);
