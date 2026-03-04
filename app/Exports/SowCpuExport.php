@@ -6,18 +6,16 @@ use App\Models\SowCpu;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithDrawings;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 class SowCpuExport implements
     FromCollection,
     WithMapping,
-    ShouldAutoSize,
     WithStyles,
     WithCustomStartCell,
     WithDrawings
@@ -29,7 +27,7 @@ class SowCpuExport implements
         $this->divisi = $divisi;
     }
 
-    // Logo perusahaan berdasarkan divisi
+    /* ================= LOGO ================= */
     public function drawings()
     {
         $logoPath = match (strtoupper($this->divisi)) {
@@ -45,19 +43,19 @@ class SowCpuExport implements
             return [];
         }
 
-        $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing(); 
-        $drawing->setName('Logo PT'); 
-        $drawing->setDescription('Logo perusahaan'); 
-        $drawing->setPath($logoPath); // pastikan file ada 
-        $drawing->setHeight(20);// sesuaikan tinggi agar proporsional$drawing->setCoordinates('A4'); // posisi tepat di sel A4 $drawing->setOffsetX(10); // geser sedikit ke kanan $drawing->setOffsetY(5); // geser sedikit ke bawah
-        $drawing->setCoordinates('A4'); // posisi tepat di sel A4 
-        $drawing->setOffsetX(10); // geser sedikit ke kanan 
-        $drawing->setOffsetY(2); // geser sedikit ke bawah
+        $drawing = new Drawing();
+        $drawing->setName('Logo PT');
+        $drawing->setDescription('Logo perusahaan');
+        $drawing->setPath($logoPath);
+        $drawing->setHeight(20);
+        $drawing->setCoordinates('A4');
+        $drawing->setOffsetX(10);
+        $drawing->setOffsetY(2);
 
         return [$drawing];
     }
 
-    // Query data SowCpu dengan relasi dan filter divisi jika ada
+    /* ================= QUERY ================= */
     public function collection()
     {
         return SowCpu::with([
@@ -65,7 +63,7 @@ class SowCpuExport implements
                 'ram',
                 'motherboard',
                 'hostname',
-                'pic' // jika ingin ditampilkan juga, bisa ditambahkan mapping
+                'pic'
             ])
             ->when($this->divisi, fn (Builder $q) =>
                 $q->where('divisi', $this->divisi)
@@ -74,7 +72,7 @@ class SowCpuExport implements
             ->get();
     }
 
-    // Mapping data tiap baris ke kolom Excel
+    /* ================= MAPPING ================= */
     public function map($sow): array
     {
         static $no = 1;
@@ -86,130 +84,158 @@ class SowCpuExport implements
             strtoupper(($sow->motherboard?->Merk ?? '-') . ' ' . ($sow->motherboard?->Seri ?? '')),
             optional($sow->tanggal_perbaikan)->format('d-m-Y') ?? '-',
             optional($sow->tanggal_penggunaan)->format('d-m-Y') ?? '-',
-            $sow->helpdesk ? 'V' : '',
-            $sow->form ? 'V' : '',
+            $sow->helpdesk ? '✓' : '',
+            $sow->form ? '✓' : '',
             $sow->nomor_perbaikan ?? '-',
             $sow->hostname?->nama ?? '-',
             $sow->keterangan ?? '-',
         ];
     }
 
-    // Mulai data dari cell A8
+    /* ================= START CELL ================= */
     public function startCell(): string
     {
         return 'A8';
     }
 
-    // Styling dan header sheet sesuai gambar
+    /* ================= STYLING ================= */
     public function styles(Worksheet $sheet)
-    {
-        // Judul S.O.W di tengah (merge E3:G3)
-        $sheet->mergeCells('E3:G3');
-        $sheet->setCellValue('E3', 'HARDWARE: CPU SET');
-        $sheet->getStyle('E3')->applyFromArray([
-            'font' => ['bold' => true, 'size' => 14],
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical' => Alignment::VERTICAL_CENTER
-            ],
-        ]);
+{
+    /* ================= JUDUL ================= */
+    $sheet->mergeCells('E3:G3');
+    $sheet->setCellValue('E3', 'HARDWARE: CPU SET');
 
-        /** -----------------------------
-         *  Blok tanda tangan kanan atas
-         * ----------------------------- */
-        $sheet->setCellValue('I2', 'Dibuat');
-        $sheet->setCellValue('J2', 'Diketahui');
-        $sheet->setCellValue('K2', 'Disetujui');
-        $sheet->setCellValue('L2', 'Diterima');
+    $sheet->getStyle('E3')->applyFromArray([
+        'font' => ['bold' => true, 'size' => 14],
+        'alignment' => [
+            'horizontal' => Alignment::HORIZONTAL_CENTER,
+            'vertical'   => Alignment::VERTICAL_CENTER,
+        ],
+    ]);
 
-        $sheet->setCellValue('K4', 'GM');
-        $sheet->setCellValue('L4', 'GA');
+    /* ================= BLOK TTD ================= */
+    $sheet->setCellValue('I2', 'Dibuat');
+    $sheet->setCellValue('J2', 'Diketahui');
+    $sheet->setCellValue('K2', 'Disetujui');
+    $sheet->setCellValue('L2', 'Diterima');
 
-        // Atur tinggi baris tanda tangan
-        $sheet->getRowDimension(2)->setRowHeight(10);
-        $sheet->getRowDimension(3)->setRowHeight(40);
-        $sheet->getRowDimension(4)->setRowHeight(10);
+    $sheet->setCellValue('K4', 'GM');
+    $sheet->setCellValue('L4', 'GA');
 
-        // Atur posisi tengah vertikal untuk GM dan GA
-        $sheet->getStyle('K3:L3')->getAlignment()->setVertical('center');
+    $sheet->getRowDimension(2)->setRowHeight(18);
+    $sheet->getRowDimension(3)->setRowHeight(45);
+    $sheet->getRowDimension(4)->setRowHeight(18);
 
-        // Styling blok tanda tangan
-        $sheet->getStyle('I2:L2')->applyFromArray([
-            'font' => ['bold' => true],
-            'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
-        ]);
+    $sheet->getStyle('I2:L4')->applyFromArray([
+        'borders' => [
+            'allBorders' => ['borderStyle' => 'thin'],
+        ],
+    ]);
 
-        $sheet->getStyle('I2:L4')->applyFromArray([
-            'borders' => ['allBorders' => ['borderStyle' => 'thin']],
-        ]);
+    $sheet->getStyle('I2:L2')->applyFromArray([
+        'font' => ['bold' => true],
+    ]);
 
-        $sheet->getStyle('I2:L4')->getAlignment()->setHorizontal('center');
-        $sheet->getStyle('I2:L4')->getAlignment()->setVertical('center');
+    $sheet->getStyle('I2:L4')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+    $sheet->getStyle('I2:L4')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
 
 
+    /* ================= HEADER TABEL ================= */
+    $sheet->setCellValue('A6', 'No');
+    $sheet->setCellValue('B6', 'CASHING DAN PSU');
+    $sheet->setCellValue('C6', 'PROSESOR DAN RAM');
+    $sheet->setCellValue('D6', 'MOTHERBOARD');
+    $sheet->setCellValue('E6', 'Tanggal Perbaikan');
+    $sheet->setCellValue('F6', 'Tanggal Pemakaian');
 
-        // Header kolom baris 6 dan 7
-        $sheet->setCellValue('A6', 'No');
-        $sheet->setCellValue('B6', 'PROCESSOR');
-        $sheet->setCellValue('C6', 'RAM');
-        $sheet->setCellValue('D6', 'MOTHERBOARD');
-        $sheet->setCellValue('E6', 'Tanggal Perbaikan');
-        $sheet->setCellValue('F6', 'Tanggal Pemakaian');
+    $sheet->mergeCells('G6:H6');
+    $sheet->setCellValue('G6', 'SPPI');
 
-        $sheet->mergeCells('G6:H6');
-        $sheet->setCellValue('G6', 'SPPI');
+    $sheet->setCellValue('I6', 'Nomor Perbaikan');
+    $sheet->setCellValue('J6', 'Hostname');
+    $sheet->setCellValue('K6', 'Keterangan Perbaikan');
 
-        $sheet->setCellValue('I6', 'Nomor Perbaikan');
-        $sheet->setCellValue('J6', 'Hostname');
-        $sheet->setCellValue('K6', 'Keterangan Perbaikan');
+    $sheet->setCellValue('G7', 'Helpdesk');
+    $sheet->setCellValue('H7', 'Form');
 
-        $sheet->setCellValue('G7', 'Helpdesk');
-        $sheet->setCellValue('H7', 'Form');
-
-        // Merge cell yang tidak memiliki sub kolom
-        foreach (['A','B','C','D','E','F','I','J','K'] as $col) {
-            $sheet->mergeCells("{$col}6:{$col}7");
-        }
-
-        // Style header
-        $sheet->getStyle('A6:K7')->applyFromArray([
-            'font' => ['bold' => true],
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical' => Alignment::VERTICAL_CENTER
-            ],
-            'fill' => [
-                'fillType' => 'solid',
-                'startColor' => ['rgb' => 'E5E7EB']
-            ],
-        ]);
-
-        // Atur tinggi baris header
-        $sheet->getRowDimension(6)->setRowHeight(25);
-        $sheet->getRowDimension(7)->setRowHeight(20);
-
-        // Border seluruh tabel data dari A6 sampai kolom K dan baris terakhir
-        $lastRow = $sheet->getHighestRow();
-        $sheet->getStyle("A6:K{$lastRow}")
-            ->getBorders()
-            ->getAllBorders()
-            ->setBorderStyle('thin');
-
-        // Alignment kolom spesifik
-        $sheet->getStyle("A8:A{$lastRow}")
-            ->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-        $sheet->getStyle("G8:H{$lastRow}")
-            ->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-        $sheet->getStyle("E8:F{$lastRow}")
-            ->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-        $sheet->getStyle("I8:I{$lastRow}")
-            ->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_LEFT);
+    foreach (['A','B','C','D','E','F','I','J','K'] as $col) {
+        $sheet->mergeCells("{$col}6:{$col}7");
     }
+
+    /* ================= STYLE HEADER ================= */
+    $sheet->getStyle('A6:K6')->applyFromArray([
+        'font' => ['bold' => true],
+        'alignment' => [
+            'horizontal' => Alignment::HORIZONTAL_CENTER,
+            'vertical'   => Alignment::VERTICAL_CENTER,
+        ],
+        'fill' => [
+            'fillType' => 'solid',
+            'startColor' => ['rgb' => 'E5E7EB'],
+        ],
+    ]);
+
+    $sheet->getStyle('G7:H7')->applyFromArray([
+        'font' => ['bold' => true],
+        'alignment' => [
+            'horizontal' => Alignment::HORIZONTAL_CENTER,
+            'vertical'   => Alignment::VERTICAL_CENTER,
+        ],
+        'fill' => [
+            'fillType' => 'solid',
+            'startColor' => ['rgb' => 'F3F4F6'],
+        ],
+    ]);
+
+    $sheet->getRowDimension(6)->setRowHeight(25);
+    $sheet->getRowDimension(7)->setRowHeight(20);
+
+
+    /* ================= BORDER TABLE ================= */
+    $lastRow = $sheet->getHighestRow();
+
+    $sheet->getStyle("A6:K{$lastRow}")
+        ->getBorders()
+        ->getAllBorders()
+        ->setBorderStyle('thin');
+
+
+    /* ================= CUSTOM WIDTH ================= */
+    $sheet->getColumnDimension('A')->setWidth(5);
+    $sheet->getColumnDimension('B')->setWidth(20);
+    $sheet->getColumnDimension('C')->setWidth(20);
+    $sheet->getColumnDimension('D')->setWidth(20);
+    $sheet->getColumnDimension('E')->setWidth(18);
+    $sheet->getColumnDimension('F')->setWidth(18);
+    $sheet->getColumnDimension('G')->setWidth(12);
+    $sheet->getColumnDimension('H')->setWidth(12);
+    $sheet->getColumnDimension('I')->setWidth(22);
+    $sheet->getColumnDimension('J')->setWidth(20);
+    $sheet->getColumnDimension('K')->setWidth(20);
+    $sheet->getColumnDimension('L')->setWidth(15); // untuk TTD
+
+
+    /* ================= WRAP TEXT ================= */
+    $sheet->getStyle("A8:K{$lastRow}")
+        ->getAlignment()
+        ->setWrapText(true);
+
+    $sheet->getStyle("A8:K{$lastRow}")
+        ->getAlignment()
+        ->setVertical(Alignment::VERTICAL_TOP);
+
+
+    /* ================= ALIGNMENT DATA ================= */
+    $sheet->getStyle("A8:A{$lastRow}")
+        ->getAlignment()
+        ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+    $sheet->getStyle("G8:H{$lastRow}")
+        ->getAlignment()
+        ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+    $sheet->getStyle("E8:F{$lastRow}")
+        ->getAlignment()
+        ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+}
 }
