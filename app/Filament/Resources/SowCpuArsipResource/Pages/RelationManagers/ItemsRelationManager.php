@@ -48,7 +48,7 @@ class ItemsRelationManager extends RelationManager
                         $namaFile = "data-sow-pc-{$tanggal}.xlsx";
 
                         return Excel::download(
-                            new SowPcArsipExport($arsipId, $divisi),
+                            new SowCpuArsipExport($arsipId, $divisi),
                             $namaFile
                         );
                     }),

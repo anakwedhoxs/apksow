@@ -14,7 +14,7 @@ class SowCpuArsipItem extends Model
 
     public function arsip()
     {
-        return $this->belongsTo(SowPcArsip::class);
+        return $this->belongsTo(SowCpuArsip::class);
     }
 
     // Relasi ke tabel master Inventaris
