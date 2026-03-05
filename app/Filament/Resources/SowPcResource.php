@@ -24,6 +24,7 @@ class SowPcResource extends Resource
         protected static ?string $navigationIcon = 'heroicon-s-queue-list';
     protected static ?string $navigationLabel = 'Data SOW PC';
     protected static ?string $navigationGroup = 'SOW';
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

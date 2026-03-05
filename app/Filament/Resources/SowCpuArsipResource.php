@@ -19,6 +19,7 @@ class SowCpuArsipResource extends Resource
     protected static ?string $navigationLabel = 'Arsip SOW CPU';
     protected static ?string $navigationGroup = 'Arsip SOW';
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
+    protected static ?int $navigationSort = 2;
     
 
     public static function form(Forms\Form $form): Forms\Form

@@ -26,6 +26,7 @@ class SowCpuResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-s-queue-list';
     protected static ?string $navigationLabel = 'Data SOW CPU';
     protected static ?string $navigationGroup = 'SOW';
+    protected static ?int $navigationSort = 1;
 
 
     public static function form(Form $form): Form
