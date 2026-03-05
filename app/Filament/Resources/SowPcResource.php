@@ -249,6 +249,7 @@ class SowPcResource extends Resource
                         ->form([
                             Forms\Components\TextInput::make('nama_arsip')
                                 ->label('Nama Arsip')
+                                ->placeholder('ex:SOWx-blnthn') 
                                 ->required(),
                         ])
                         ->requiresConfirmation()
