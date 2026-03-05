@@ -233,6 +233,7 @@ class SowPcResource extends Resource
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
+                    ->visible(fn () => auth()->user()?->hasRole('super_admin'))
                     ->action(function () {
                         SowPc::query()->update(['status' => false]);
                         Notification::make()

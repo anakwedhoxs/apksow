@@ -75,7 +75,7 @@ trait UpdatesRekap
         } elseif (isset($this->case)) {
             // SowPC (CASE)
             $this->updateRekap(
-                'PC CASE',
+                'PC SET',
                 $this->case->Merk,
                 $this->case->Seri
             );

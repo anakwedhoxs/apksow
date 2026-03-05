@@ -204,7 +204,11 @@ class RekapExport implements
             ]);
 
         $sheet->setCellValue('A' . ($lastRow + 4),
-            '*1 Lampirkan dokumentasi pembuangan/penyerahan.');
+            '*1 Lampirkan dokumentasi pembuangan/penyerahan.' .
+            'CC/Tembusan : Putih : Dept. Penerbit - Merah : GA - Kuning : ACC');
+        $sheet->getStyle('A' . ($lastRow + 4))
+        ->getFont()
+        ->setSize(6);
         $sheet->setCellValue('G' . ($lastRow + 4), 'Rev 03;02/11/21');
 
         $sheet->getStyle('G' . ($lastRow + 4))->applyFromArray([
@@ -215,9 +219,7 @@ class RekapExport implements
                 'size' => 10,
             ],
         ]);
-        $sheet->setCellValue('A' . ($lastRow + 5),
-            'CC/Tembusan : Putih : Dept. Penerbit - Merah : GA - Kuning : ACC');
-
+        
         $sheet->setCellValue('A' . ($lastRow + 6), 'CARGLOSS');
         $sheet->setCellValue('G' . ($lastRow + 6), 'FO-GDG-02');
 
