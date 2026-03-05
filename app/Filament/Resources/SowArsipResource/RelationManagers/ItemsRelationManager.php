@@ -11,7 +11,6 @@ use Maatwebsite\Excel\Facades\Excel;
 use Filament\Forms; 
 use Carbon\Carbon;
 
-
 class ItemsRelationManager extends RelationManager
 {
     protected static string $relationship = 'items';
@@ -39,16 +38,14 @@ class ItemsRelationManager extends RelationManager
                 ->label('Export Excel')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->action(function () {
-
                     $filters = $this->getTableFiltersForm()->getState();
-
                     $divisi = $filters['divisi'] ?? null;
+                    
                     if (is_array($divisi)) {
                         $divisi = reset($divisi);
                     }
 
                     $arsipId = $this->getOwnerRecord()->id;
-
                     $tanggal = now()->format('d-m-Y');
                     $namaFile = "data-sow-{$tanggal}.xlsx";
 
@@ -57,11 +54,9 @@ class ItemsRelationManager extends RelationManager
                         $namaFile
                     );
                 }),
-
             ])
 
-
-            /* ================= COLUMNS ================= */
+            /* ================= COLUMNS (Tampilan Tabel) ================= */
             ->columns([
                 Tables\Columns\TextColumn::make('inventaris.Kategori')
                     ->label('Hardware')
@@ -103,24 +98,65 @@ class ItemsRelationManager extends RelationManager
             ->defaultSort('id', 'desc')
             ->paginated([10, 25, 50])
 
-             ->actions([ 
+            /* ================= ACTIONS (Lihat Detail) ================= */
+            ->actions([ 
                 Tables\Actions\ViewAction::make() 
-                ->label('Lihat Detail') 
-                ->form([
-                     Forms\Components\Select::make('inventaris.Kategori')->label('Hardware')->disabled(), 
-                     Forms\Components\Select::make('inventaris.Merk')->label('Merk')->disabled(), 
-                     Forms\Components\TextInput::make('inventaris.Seri')->label('Seri')->disabled(), 
-                     Forms\Components\DatePicker::make('tanggal_penggunaan')->label('Tanggal Penggunaan')->disabled(), 
-                     Forms\Components\DatePicker::make('tanggal_perbaikan')->label('Tanggal Perbaikan')->disabled(),  
-                     Forms\Components\Checkbox::make('helpdesk')->label('Helpdesk')->disabled(), 
-                     Forms\Components\Checkbox::make('form')->label('Form')->disabled(),
-                     Forms\Components\TextInput::make('nomor_perbaikan')->label('Nomor Perbaikan')->disabled(), 
-                     Forms\Components\TextInput::make('hostname')->label('Hostname')->disabled(), 
-                     Forms\Components\Select::make('divisi')->label('Divisi')->disabled(), 
-                     Forms\Components\Textarea::make('keterangan')->label('Keterangan')->disabled(), 
-                     Forms\Components\TextInput::make('pic')->label('PIC')->disabled(), 
-                     Forms\Components\FileUpload::make('foto')->label('Foto')->disk('public')->disabled(), 
-                     ]), 
-                     ]);
+                    ->label('Lihat Detail') 
+                    ->modalHeading('Detail Item SOW')
+                    ->form([
+                        // Hardware, Merk, Seri seragam dengan TextInput
+                        Forms\Components\Grid::make(3)
+                            ->schema([
+                                Forms\Components\TextInput::make('hardware')
+                                    ->label('Hardware')
+                                    ->formatStateUsing(fn ($record) => $record->inventaris?->Kategori)
+                                    ->disabled(),
+
+                                Forms\Components\TextInput::make('merk')
+                                    ->label('Merk')
+                                    ->formatStateUsing(fn ($record) => $record->inventaris?->Merk)
+                                    ->disabled(),
+
+                                Forms\Components\TextInput::make('seri')
+                                    ->label('Seri')
+                                    ->formatStateUsing(fn ($record) => $record->inventaris?->Seri)
+                                    ->disabled(),
+                            ]),
+
+                        Forms\Components\Section::make('Informasi Penggunaan')
+                            ->schema([
+                                Forms\Components\DatePicker::make('tanggal_penggunaan')->label('Tanggal Penggunaan')->disabled(), 
+                                Forms\Components\DatePicker::make('tanggal_perbaikan')->label('Tanggal Perbaikan')->disabled(),
+                                Forms\Components\TextInput::make('hostname')->label('Hostname')->disabled(),
+                                Forms\Components\TextInput::make('divisi')->label('Divisi')->disabled(),
+                                Forms\Components\TextInput::make('pic')->label('PIC')->disabled(),
+                            ])->columns(2),
+
+                        Forms\Components\Section::make('Status & Dokumen')
+                            ->schema([
+                                Forms\Components\Grid::make(2)
+                                    ->schema([
+                                        Forms\Components\Checkbox::make('helpdesk')->label('Helpdesk')->disabled(), 
+                                        Forms\Components\Checkbox::make('form')->label('Form')->disabled(),
+                                        Forms\Components\TextInput::make('nomor_perbaikan')->label('Nomor Perbaikan')->disabled(),
+                                    ]),
+                                
+                                Forms\Components\Textarea::make('keterangan')
+                                    ->label('Keterangan')
+                                    ->disabled()
+                                    ->columnSpanFull(), 
+
+                                // Menampilkan Foto di View Modal
+                                Forms\Components\FileUpload::make('foto')
+                                    ->label('Foto Lampiran')
+                                    ->disk('public')
+                                    ->visibility('public')
+                                    ->image() // Memastikan tampilan sebagai gambar
+                                    ->disabled()
+                                    ->downloadable()
+                                    ->columnSpanFull(), 
+                            ]),
+                    ]), 
+            ]);
     }
 }

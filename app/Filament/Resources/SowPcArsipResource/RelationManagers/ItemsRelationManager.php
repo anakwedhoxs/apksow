@@ -85,22 +85,70 @@ class ItemsRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->label('Lihat Detail')
+                    ->modalHeading('Detail Item SOW PC')
                     ->form([
-                        Forms\Components\TextInput::make('case.Merk')->label('Case')->disabled(),
-                        Forms\Components\TextInput::make('psu.Merk')->label('PSU')->disabled(),
-                        Forms\Components\TextInput::make('prosesor.Merk')->label('Prosesor')->disabled(),
-                        Forms\Components\TextInput::make('ram.Merk')->label('RAM')->disabled(),
-                        Forms\Components\TextInput::make('motherboard.Merk')->label('Motherboard')->disabled(),
-                        Forms\Components\DatePicker::make('tanggal_penggunaan')->label('Tanggal Penggunaan')->disabled(),
-                        Forms\Components\DatePicker::make('tanggal_perbaikan')->label('Tanggal Perbaikan')->disabled(),
-                        Forms\Components\Checkbox::make('helpdesk')->label('Helpdesk')->disabled(),
-                        Forms\Components\Checkbox::make('form')->label('Form')->disabled(),
-                        Forms\Components\TextInput::make('nomor_perbaikan')->label('Nomor Perbaikan')->disabled(),
-                        Forms\Components\TextInput::make('hostname.nama')->label('Hostname')->disabled(),
-                        Forms\Components\Select::make('divisi')->label('Divisi')->disabled(),
-                        Forms\Components\Textarea::make('keterangan')->label('Keterangan')->disabled(),
-                        Forms\Components\TextInput::make('pic.nama')->label('PIC')->disabled(),
-                        Forms\Components\FileUpload::make('foto')->label('Foto')->disk('public')->disabled(),
+                        // Spek Hardware PC (3 kolom)
+                        Forms\Components\Section::make('Spesifikasi Hardware')
+                            ->schema([
+                                Forms\Components\Grid::make(3)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('case')
+                                            ->label('Case')
+                                            ->formatStateUsing(fn ($record) => $record->case?->Merk)
+                                            ->disabled(),
+                                        Forms\Components\TextInput::make('psu')
+                                            ->label('PSU')
+                                            ->formatStateUsing(fn ($record) => $record->psu?->Merk)
+                                            ->disabled(),
+                                        Forms\Components\TextInput::make('prosesor')
+                                            ->label('Prosesor')
+                                            ->formatStateUsing(fn ($record) => $record->prosesor?->Merk)
+                                            ->disabled(),
+                                        Forms\Components\TextInput::make('ram')
+                                            ->label('RAM')
+                                            ->formatStateUsing(fn ($record) => $record->ram?->Merk)
+                                            ->disabled(),
+                                        Forms\Components\TextInput::make('motherboard')
+                                            ->label('Motherboard')
+                                            ->formatStateUsing(fn ($record) => $record->motherboard?->Merk)
+                                            ->disabled(),
+                                    ]),
+                            ]),
+
+                        // Info Penggunaan (2 kolom)
+                        Forms\Components\Section::make('Informasi Penggunaan')
+                            ->schema([
+                                Forms\Components\DatePicker::make('tanggal_penggunaan')->label('Tanggal Penggunaan')->disabled(),
+                                Forms\Components\DatePicker::make('tanggal_perbaikan')->label('Tanggal Perbaikan')->disabled(),
+                                Forms\Components\TextInput::make('hostname_label')
+                                    ->label('Hostname')
+                                    ->formatStateUsing(fn ($record) => $record->hostname?->nama)
+                                    ->disabled(),
+                                Forms\Components\TextInput::make('divisi')->label('Divisi')->disabled(),
+                                Forms\Components\TextInput::make('pic_label')
+                                    ->label('PIC')
+                                    ->formatStateUsing(fn ($record) => $record->pic?->nama)
+                                    ->disabled(),
+                            ])->columns(2),
+
+                        // Status & Foto
+                        Forms\Components\Section::make('Status & Lampiran')
+                            ->schema([
+                                Forms\Components\Grid::make(2)
+                                    ->schema([
+                                        Forms\Components\Checkbox::make('helpdesk')->label('Helpdesk')->disabled(),
+                                        Forms\Components\Checkbox::make('form')->label('Form')->disabled(),
+                                        Forms\Components\TextInput::make('nomor_perbaikan')->label('Nomor Perbaikan')->disabled(),
+                                    ]),
+                                Forms\Components\Textarea::make('keterangan')->label('Keterangan')->disabled()->columnSpanFull(),
+                                Forms\Components\FileUpload::make('foto')
+                                    ->label('Foto Lampiran')
+                                    ->disk('public')
+                                    ->image()
+                                    ->downloadable()
+                                    ->disabled()
+                                    ->columnSpanFull(),
+                            ]),
                     ]),
             ]);
     }
