@@ -203,26 +203,35 @@ class RekapExport implements
                 ],
             ]);
 
-        $sheet->setCellValue('A' . ($lastRow + 4),
-            '*1 Lampirkan dokumentasi pembuangan/penyerahan.');
-        $sheet->getStyle('A' . ($lastRow + 4))
-        ->getFont()
-        ->setSize(6);
-        $sheet->setCellValue('G' . ($lastRow + 4), 'Rev 03;02/11/21');
+        $row1 = $lastRow + 4;
+$row2 = $lastRow + 5;
 
-        $sheet->getStyle('G' . ($lastRow + 4))->applyFromArray([
-            'alignment' => [
-                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
-            ],
-            'font' => [
-                'size' => 10,
-            ],
-        ]);
-        $sheet->setCellValue('A' . ($lastRow + 5),
-            'CC/Tembusan : Putih : Dept. Penerbit - Merah : GA - Kuning : ACC');
-        $sheet->getStyle('A' . ($lastRow + 5))
-        ->getFont()
-        ->setSize(6);
+$sheet->setCellValue('A' . $row1,
+    '*1 Lampirkan dokumentasi pembuangan/penyerahan.');
+$sheet->getStyle('A' . $row1)
+    ->getFont()
+    ->setSize(6);
+
+$sheet->setCellValue('G' . $row1, 'Rev 03;02/11/21');
+$sheet->getStyle('G' . $row1)->applyFromArray([
+    'alignment' => [
+        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
+    ],
+    'font' => [
+        'size' => 6,
+    ],
+]);;
+
+$sheet->setCellValue('A' . $row2,
+    'CC/Tembusan : Putih : Dept. Penerbit - Merah : GA - Kuning : ACC');
+$sheet->getStyle('A' . $row2)
+    ->getFont()
+    ->setSize(6);
+
+// tinggi baris 0.1 inch
+$sheet->getRowDimension($row1)->setRowHeight(7.2);
+$sheet->getRowDimension($row2)->setRowHeight(7.2);
+
         $sheet->setCellValue('A' . ($lastRow + 6), 'CARGLOSS');
         $sheet->setCellValue('G' . ($lastRow + 6), 'FO-GDG-02');
 
