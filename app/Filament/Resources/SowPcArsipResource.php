@@ -35,13 +35,18 @@ class SowPcArsipResource extends Resource
             Tables\Columns\TextColumn::make('created_at')->label('Dibuat')->dateTime('d M Y H:i')->sortable(),
         ])->filters([])
           ->actions([
-              Tables\Actions\ViewAction::make(),
-              Tables\Actions\DeleteAction::make()
-                  ->label('Hapus Arsip')
-                  ->requiresConfirmation()
-                  ->modalHeading('Hapus Arsip SOW PC')
-                  ->modalDescription('Semua data di dalam arsip ini juga akan ikut terhapus.')
-                  ->modalSubmitActionLabel('Ya, Hapus'),
+              Tables\Actions\ActionGroup::make([
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\DeleteAction::make()
+                ->label('Hapus Arsip')
+                ->requiresConfirmation()
+                ->modalHeading('Hapus Arsip SOW')
+                ->modalDescription('Semua data di dalam arsip ini juga akan ikut terhapus.')
+                ->modalSubmitActionLabel('Ya, Hapus'),
+                ])
+                ->label('More') 
+                ->icon('heroicon-m-ellipsis-vertical') 
+                ->color('primary')
           ]);
     }
 
