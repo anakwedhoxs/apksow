@@ -45,8 +45,7 @@ class SowCpuResource extends Resource
                             })
                             ->toArray()
                     )
-                    ->searchable()
-                    ->required(),
+                    ->searchable(),
 
 
                 Forms\Components\Select::make('ram_id')
@@ -75,7 +74,8 @@ class SowCpuResource extends Resource
                             })
                             ->toArray()
                     )
-                    ->searchable(),
+                    ->searchable()
+                     ->required(),
                    
 
 
@@ -83,8 +83,7 @@ class SowCpuResource extends Resource
                     ->label('PIC')
                     ->relationship('pic', 'nama')
                     ->searchable()
-                    ->preload()
-                    ->required(),
+                    ->preload(),
 
 
                 Forms\Components\DatePicker::make('tanggal_penggunaan'),
@@ -100,8 +99,7 @@ class SowCpuResource extends Resource
                     ->label('Hostname')
                     ->relationship('hostname', 'nama')
                     ->searchable()
-                    ->preload()
-                    ->required(),
+                    ->preload(),
 
 
                 Forms\Components\Select::make('divisi')
@@ -112,7 +110,8 @@ class SowCpuResource extends Resource
                         'MKP' => 'MKP',
                         'PPM' => 'PPM',
                     ])
-                    ->required(),
+                    ->searchable()
+                    ->preload(),
            
             Forms\Components\Textarea::make('keterangan')->columnSpanFull(),
 

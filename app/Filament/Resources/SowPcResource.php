@@ -105,8 +105,7 @@ class SowPcResource extends Resource
                     ->label('PIC')
                     ->relationship('pic', 'nama')
                     ->searchable()
-                    ->preload()
-                    ->required(),
+                    ->preload(),
 
                 Forms\Components\DatePicker::make('tanggal_penggunaan'),
                 Forms\Components\DatePicker::make('tanggal_perbaikan'),
@@ -121,8 +120,7 @@ class SowPcResource extends Resource
                     ->label('Hostname')
                     ->relationship('hostname', 'nama')
                     ->searchable()
-                    ->preload()
-                    ->required(),
+                    ->preload(),
 
                 Forms\Components\Select::make('divisi')
                     ->options([
@@ -132,7 +130,8 @@ class SowPcResource extends Resource
                         'MKP' => 'MKP',
                         'PPM' => 'PPM',
                     ])
-                    ->required(),
+                    ->searchable()
+                    ->preload(),
            
             Forms\Components\Textarea::make('keterangan')->columnSpanFull(),
 

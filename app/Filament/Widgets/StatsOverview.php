@@ -3,6 +3,8 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Sow;
+use App\Models\SowPc;
+use App\Models\SowCpu;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -10,9 +12,23 @@ class StatsOverview extends BaseWidget
 {
     protected function getStats(): array
     {
-        $totalSow      = Sow::count();
-        $totalRejected = Sow::where('status', true)->count();
-        $totalAccepted = Sow::where('status', false)->count();
+        // TOTAL SEMUA SOW
+        $totalSow = 
+            Sow::count() +
+            SowPc::count() +
+            SowCpu::count();
+
+        // TOTAL ACCEPT
+        $totalAccepted =
+            Sow::where('status', false)->count() +
+            SowPc::where('status', false)->count() +
+            SowCpu::where('status', false)->count();
+
+        // TOTAL REJECT
+        $totalRejected =
+            Sow::where('status', true)->count() +
+            SowPc::where('status', true)->count() +
+            SowCpu::where('status', true)->count();
 
         return [
             Stat::make('Jumlah SOW', $totalSow)
@@ -36,6 +52,5 @@ class StatsOverview extends BaseWidget
                     'style' => 'border: 2px solid #ef4444; border-radius: 0.80rem;',
                 ]),
 
-        ];
-    }
+        ];    }
 }

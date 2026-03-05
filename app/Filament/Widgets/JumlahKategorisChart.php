@@ -3,18 +3,49 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Sow;
+use App\Models\SowPc;
+use App\Models\SowCpu;
 use Filament\Widgets\ChartWidget;
 
 class JumlahKategorisChart extends ChartWidget
 {
-   protected static ?string $heading = ' ';
+    protected static ?string $heading = ' ';
 
     protected function getData(): array
     {
-        $kategoriCounts = Sow::with('inventaris')
+        $data = collect();
+
+        // ===== SOW =====
+        $sow = Sow::with('inventaris')->get()
+            ->filter(fn ($item) => filled($item->inventaris?->Kategori))
+            ->map(fn ($item) => $item->inventaris->Kategori);
+
+        // ===== SOW PC =====
+        $sowPc = SowPc::with(['case'])
             ->get()
-            ->filter(fn ($sow) => filled($sow->inventaris?->Kategori))
-            ->groupBy(fn ($sow) => $sow->inventaris->Kategori)
+            ->flatMap(function ($item) {
+                return collect([
+                    $item->case?->Kategori,
+                    
+                ])->filter();
+            });
+
+        // ===== SOW CPU =====
+        $sowCpu = SowCpu::with(['motherboard'])
+            ->get()
+            ->flatMap(function ($item) {
+                return collect([
+                    $item->motherboard?->Kategori,
+                ])->filter();
+            });
+
+        $data = $data
+            ->merge($sow)
+            ->merge($sowPc)
+            ->merge($sowCpu);
+
+        $kategoriCounts = $data
+            ->groupBy(fn ($item) => $item)
             ->map(fn ($group) => $group->count());
 
         return [
@@ -27,9 +58,10 @@ class JumlahKategorisChart extends ChartWidget
                         '#ef4444',
                         '#f59e0b',
                         '#6366f1',
+                        '#ec4899',
+                        '#14b8a6',
                     ],
                     'borderWidth' => 0,
-                    'borderColor' => 'transparent',
                 ],
             ],
             'labels' => $kategoriCounts->keys()->toArray(),
@@ -48,11 +80,14 @@ class JumlahKategorisChart extends ChartWidget
                 'legend' => [
                     'display' => false,
                 ],
-                'title' => [ 
-                    'display' => true, 
-                    'text' => "Jumlah per Kategori", 
-                    'align' => 'center', // judul di tengah 
-                    'font' => [ 'size' => 18, 'weight' => 'bold', ],
+                'title' => [
+                    'display' => true,
+                    'text' => "Jumlah per Kategori (Semua SOW)",
+                    'align' => 'center',
+                    'font' => [
+                        'size' => 18,
+                        'weight' => 'bold',
+                    ],
                 ],
             ],
         ];
