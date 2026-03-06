@@ -30,7 +30,7 @@ class DokumentasiArsipExport implements FromCollection, WithStyles
         /* =========================
          * HEADER UTAMA
          * ========================= */
-        $sheet->setCellValue('A1', 'LAMPIRAN');
+         $sheet->setCellValue('A1', 'LAMPIRAN');
         $sheet->setCellValue('A2', 'S.O.W (STOCK OUT WORK)');
 
         $sheet->getStyle('A1')->applyFromArray([
@@ -38,11 +38,16 @@ class DokumentasiArsipExport implements FromCollection, WithStyles
             'alignment' => ['horizontal' => 'left', 'vertical' => 'center'],
         ]);
         $sheet->getStyle('A2')->applyFromArray([
-            'font' => ['bold' => true, 'size' => 14],
-            'alignment' => ['horizontal' => 'left', 'vertical' => 'center'],
+            'font' => ['bold' => true, 'size' => 12],
+            'alignment' => [
+                'horizontal' => 'left',
+                'vertical' => 'center',
+                'wrapText' => false
+            ],
         ]);
         $sheet->getRowDimension(1)->setRowHeight(20);
-        $sheet->getRowDimension(2)->setRowHeight(25);
+        $sheet->getRowDimension(2)->setRowHeight(19.44);
+
 
         /* =========================
          * BLOK TANDA TANGAN
@@ -61,7 +66,7 @@ class DokumentasiArsipExport implements FromCollection, WithStyles
 
         foreach (['C', 'D', 'E'] as $col) {
             // Merge baris 2 untuk gambar
-            $sheet->mergeCells("{$col}2");
+             $sheet->mergeCells("{$col}2:{$col}3");
 
             // Border dan alignment
             $sheet->getStyle("{$col}2")->applyFromArray([
@@ -71,8 +76,8 @@ class DokumentasiArsipExport implements FromCollection, WithStyles
 
             // Baris 3 untuk label
             $label = $col === 'E' ? 'GA' : ' ';
-            $sheet->setCellValue("{$col}3", $label);
-            $sheet->getStyle("{$col}3")->applyFromArray([
+            $sheet->setCellValue("{$col}4", $label);
+            $sheet->getStyle("{$col}4")->applyFromArray([
                 'font' => ['bold' => true],
                 'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
                 'borders' => ['allBorders' => ['borderStyle' => 'thin']],
@@ -80,27 +85,10 @@ class DokumentasiArsipExport implements FromCollection, WithStyles
         }
 
         // Gambar tanda tangan jika ada
-        $signatures = [
-            'C' => 'storage/ttd_dibuat.png',
-            'D' => 'storage/ttd_diketahui.png',
-            'E' => 'storage/ttd_disetujui.png',
-        ];
 
-        foreach ($signatures as $col => $path) {
-            if (file_exists(public_path($path))) {
-                $drawing = new Drawing();
-                $drawing->setPath(public_path($path));
-                $drawing->setResizeProportional(false);
-                $drawing->setWidth(100);
-                $drawing->setHeight(40);
-                $drawing->setCoordinates("{$col}2");
-                $drawing->setOffsetX(5);
-                $drawing->setOffsetY(0);
-                $drawing->setWorksheet($sheet);
-            }
-        }
-
-        $sheet->getRowDimension(2)->setRowHeight(50);
+        $sheet->getRowDimension(2)->setRowHeight(19.44);
+         $sheet->getRowDimension(3)->setRowHeight(35);
+        $sheet->getRowDimension(4)->setRowHeight(20);
 
         /* =========================
          * GRID BARANG / FOTO
