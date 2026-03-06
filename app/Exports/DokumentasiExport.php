@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
+
 class DokumentasiExport implements FromCollection, WithStyles
 {
     protected $data;
@@ -44,46 +45,34 @@ class DokumentasiExport implements FromCollection, WithStyles
         /* =========================
          * BLOK TANDA TANGAN C–E
          * ========================= */
-        $sheet->setCellValue('C1', 'Dibuat');
-        $sheet->setCellValue('D1', 'Diketahui');
-        $sheet->setCellValue('E1', 'Disetujui');
+        $ttdPath = public_path('images/ttd.png'); // 1 file yang sama
 
-        $sheet->getStyle('C1:E1')->applyFromArray([
-            'font' => ['bold' => true],
-            'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
-            'borders' => ['allBorders' => ['borderStyle' => 'thin']],
-        ]);
-        $sheet->getRowDimension(1)->setRowHeight(20);
+        $cols = ['C'];
 
-        foreach (['C', 'D', 'E'] as $col) {
-            // Merge baris 2 untuk gambar
-            $sheet->mergeCells("{$col}2:{$col}3");
+        foreach ($cols as $col) {
+            $drawing = new Drawing();
+            $drawing->setName('TTD');
+            $drawing->setDescription('Tanda Tangan');
+            $drawing->setPath($ttdPath);
+            $drawing->setCoordinates($col . '1');
 
-            // Border dan alignment
-            $sheet->getStyle("{$col}2")->applyFromArray([
-                'alignment' => ['horizontal' => 'center', 'vertical' => 'top'],
-                'borders' => ['allBorders' => ['borderStyle' => 'thin']],
-            ]);
+            // atur ukuran gambar
+            $drawing->setHeight(105);
 
-            // Baris 3 untuk label
-            $label = $col === 'E' ? 'GA' : ' ';
-            $sheet->setCellValue("{$col}4", $label);
-            $sheet->getStyle("{$col}4")->applyFromArray([
-                'font' => ['bold' => true],
-                'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
-                'borders' => ['allBorders' => ['borderStyle' => 'thin']],
-            ]);
-        }
+            // posisi di dalam cell
+            $drawing->setOffsetX(10);
+            $drawing->setOffsetY(5);
+
+            $drawing->setWorksheet($sheet);
+                }
         
-        $sheet->getRowDimension(2)->setRowHeight(19.44);
-        $sheet->getRowDimension(3)->setRowHeight(35);
-        $sheet->getRowDimension(4)->setRowHeight(20);
+       
 
         /* =========================
          * GRID BARANG
          * ========================= */
-        $itemsPerRow = 5;
-        $startRow    = 6;
+        $itemsPerRow = 4;
+        $startRow    = 7;
         $columns     = range('A', chr(ord('A') + $itemsPerRow - 1)); // A–E
 
         $imgWidth  = 153;
@@ -105,11 +94,9 @@ class DokumentasiExport implements FromCollection, WithStyles
                     'vertical'   => 'center',
                     'wrapText'   => true,
                 ],
-                'borders' => [
-                    'allBorders' => ['borderStyle' => 'thin'],
-                ],
+               
             ]);
-            $sheet->getRowDimension($row)->setRowHeight(30);
+            $sheet->getRowDimension($row)->setRowHeight(15);
 
             $imageRow = $row + 1;
 
@@ -127,9 +114,7 @@ class DokumentasiExport implements FromCollection, WithStyles
 
             $sheet->getRowDimension($imageRow)->setRowHeight($imgHeight + 10);
             $sheet->getStyle("{$col}{$imageRow}")->applyFromArray([
-                'borders' => [
-                    'allBorders' => ['borderStyle' => 'thin'],
-                ],
+                
             ]);
         }
 
