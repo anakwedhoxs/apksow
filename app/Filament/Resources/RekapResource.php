@@ -24,6 +24,7 @@ class RekapResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-document-chart-bar';
     protected static ?string $navigationGroup = 'SOW';
     protected static ?string $navigationLabel = 'Rekap SOW';
+    protected static ?string $pluralLabel = 'Rekap SOW';
     protected static ?int $navigationSort = 5;
 
 

@@ -25,6 +25,7 @@ class SOWResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-s-queue-list';
     protected static ?string $navigationLabel = 'Data SOW';
     protected static ?string $navigationGroup = 'SOW';
+    protected static ?string $pluralLabel = 'SOW';
     protected static ?int $navigationSort = 1;
 
     /* ================= FORM ================= */

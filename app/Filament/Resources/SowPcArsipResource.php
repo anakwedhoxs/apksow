@@ -17,6 +17,7 @@ class SowPcArsipResource extends Resource
     protected static ?string $model = SowPcArsip::class;
     protected static ?string $navigationLabel = 'Arsip SOW PC';
     protected static ?string $navigationGroup = 'Arsip SOW';
+    protected static ?string $pluralLabel = 'Arsip SOW PC';
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
     protected static ?int $navigationSort = 7;
 

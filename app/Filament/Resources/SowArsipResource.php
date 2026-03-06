@@ -18,6 +18,7 @@ class SowArsipResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
     protected static ?string $navigationLabel = 'Arsip SOW';
     protected static ?string $navigationGroup = 'Arsip SOW';
+    protected static ?string $pluralLabel = 'Arsip SOW';
 
     public static function table(Table $table): Table
     {

@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class DokumentasiArsipResource extends Resource
 {
@@ -18,6 +19,7 @@ class DokumentasiArsipResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
     protected static ?string $navigationLabel = 'Arsip Dokumentasi';
     protected static ?string $navigationGroup = 'Arsip SOW';
+    protected static ?string $pluralLabel = 'Dokumentasi Arsip';
     protected static ?int $navigationSort = 9;
 
     public static function form(Form $form): Form
@@ -44,6 +46,40 @@ class DokumentasiArsipResource extends Resource
                     ->label('Tanggal Arsip')
                     ->dateTime('d M Y H:i')
                     ->sortable(),
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('rentang_waktu')
+                    ->label('Urutan Waktu')
+                    ->options([
+                        'yesterday' => 'Yesterday',
+                        'last_week' => 'Last week',
+                        'last_month' => 'Last month',
+                        'this_year' => 'Earlier this year',
+                        'long_ago' => 'A long time ago',
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (empty($data['value'])) {
+                            return $query;
+                        }
+
+                        return match ($data['value']) {
+                            'yesterday' => $query->where('created_at', '>=', now()->subDay())
+                                                 ->orderBy('created_at', 'desc'),
+                            
+                            'last_week' => $query->where('created_at', '>=', now()->subDays(7))
+                                                 ->orderBy('created_at', 'desc'),
+                            
+                            'last_month' => $query->where('created_at', '>=', now()->subMonth())
+                                                  ->orderBy('created_at', 'desc'),
+                            
+                            'this_year' => $query->whereYear('created_at', now()->year)
+                                                 ->orderBy('created_at', 'desc'),
+                            
+                            'long_ago' => $query->reorder('created_at', 'asc'),
+                            
+                            default => $query,
+                        };
+                    })
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([

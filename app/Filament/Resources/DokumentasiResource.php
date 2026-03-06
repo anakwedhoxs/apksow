@@ -22,6 +22,7 @@ class DokumentasiResource extends Resource
     protected static ?int $navigationSort = 4;
     protected static ?string $navigationIcon = 'heroicon-s-photo';
     protected static ?string $navigationLabel = 'Dokumentasi';
+    protected static ?string $pluralLabel = 'Dokumentasi';
     protected static ?string $navigationGroup = 'SOW';
 
     /* ================= FORM ================= */

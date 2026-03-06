@@ -21,9 +21,10 @@ class SowPcResource extends Resource
 {
     protected static ?string $model = SowPc::class;
 
-        protected static ?string $navigationIcon = 'heroicon-s-queue-list';
+    protected static ?string $navigationIcon = 'heroicon-s-queue-list';
     protected static ?string $navigationLabel = 'Data SOW PC';
     protected static ?string $navigationGroup = 'SOW';
+    protected static ?string $pluralLabel = 'SOW PC';
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
