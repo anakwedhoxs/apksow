@@ -19,7 +19,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class DokumentasiResource extends Resource
 {
     protected static ?string $model = Dokumentasi::class;
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 4;
     protected static ?string $navigationIcon = 'heroicon-s-photo';
     protected static ?string $navigationLabel = 'Dokumentasi';
     protected static ?string $navigationGroup = 'SOW';

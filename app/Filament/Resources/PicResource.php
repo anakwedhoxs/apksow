@@ -17,7 +17,7 @@ class PicResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user';
     protected static ?string $navigationLabel = 'Data PIC';
     protected static ?string $navigationGroup = 'Master Data';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
 
     public static function form(Form $form): Form
