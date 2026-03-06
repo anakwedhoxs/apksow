@@ -19,40 +19,68 @@ class RekapArsipItemExport implements
     WithCustomStartCell,
     WithColumnWidths
 {
-    protected int $rekapArsipId;
     const TABLE_START_ROW = 11;
 
-    public function __construct(int $rekapArsipId)
+    protected ?string $divisi;
+
+    public function __construct(?string $divisi = null)
     {
         $this->rekapArsipId = $rekapArsipId;
     }
 
-    public function collection()
+    /**
+     * =====================
+     * LOGO (DI A1)
+     * =====================
+     */
+    public function drawings()
     {
-        return RekapArsipItem::where('rekap_arsip_id', $this->rekapArsipId)
+        $drawing = new Drawing();
+        $drawing->setName('Logo');
+        $drawing->setDescription('Logo Cargloss');
+        $drawing->setPath(public_path('images/cargloss.png')); 
+        $drawing->setCoordinates('A1');
+
+        // ukuran logo bisa diubah
+        $drawing->setHeight(25);
+
+        return $drawing;
+    }
+
+    /**
+     * =====================
+     * DATA
+     * =====================
+     */
+    public function collection(): Collection
+    {
+        $data = Rekap::query()
             ->orderBy('kategori')
             ->get()
             ->groupBy('kategori');
-    }
 
-    public function map($rekapGroup): array
-    {
-        static $no = 1;
+        $rows = collect();
+        $no = 1;
 
-        $merkSeri = $rekapGroup->map(function ($item) {
-            return strtoupper($item->merk . ' ' . $item->seri) .
-                ' (' . $item->jumlah . ')';
-        })->implode(', ');
+        foreach ($data as $kategori => $items) {
 
-        return [
-            $no++,                                        // A
-            strtoupper($rekapGroup->first()->kategori),   // B
-            $merkSeri,                                    // C
-            '',                                           // D (kosong karena merge)
-            '',                                           // E (kosong karena merge)
-            '',                                           // F (kosong karena merge)
-            $rekapGroup->sum('jumlah'),                   // G (Jumlah)
-        ];
+            $merkSeri = $items->map(function ($item) {
+                return strtoupper($item->merk . ' ' . $item->seri)
+                    . ' (' . $item->jumlah . ')';
+            })->implode(', ');
+
+            $rows->push([
+                $no++,
+                strtoupper($kategori),
+                $merkSeri,
+                '',
+                '',
+                '',
+                $items->sum('jumlah'),
+            ]);
+        }
+
+        return $rows;
     }
 
     public function startCell(): string
@@ -72,19 +100,12 @@ class RekapArsipItemExport implements
             'G' => 14.33,
         ];
     }
-
+    
     public function styles(Worksheet $sheet)
     {
+
         /** HEADER ATAS */
-        $sheet->setCellValue('A1', 'CARGLOSS');
-        $sheet->getStyle('A1')->applyFromArray([
-            'font' => [
-                'bold' => true,
-                'size' => 14,
-                'color' => ['argb' => 'FFFF0000']
-            ],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
-        ]);
+        // tulisan CARGLOSS dihapus karena sudah diganti logo
 
         $sheet->setCellValue('G1', 'FO-GDG-02');
         $sheet->getStyle('G1')->applyFromArray([
@@ -95,6 +116,7 @@ class RekapArsipItemExport implements
         $sheet->setCellValue('A3', 'STOCK OUT WORK');
         $sheet->getStyle('A3')->applyFromArray([
             'font' => ['bold' => true, 'size' => 14],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
         ]);
 
         /** BLOK TANDA TANGAN */
@@ -122,7 +144,7 @@ class RekapArsipItemExport implements
 
         /** INFO */
         $sheet->setCellValue('A7', 'Dept.: MIS');
-        $sheet->setCellValue('A8', 'No.: __________________');
+        $sheet->setCellValue('A8', 'No.    : __________________');
         $sheet->setCellValue('F8', 'Tanggal: ____ / ____ / ______');
 
         /** HEADER TABEL */
@@ -175,56 +197,42 @@ class RekapArsipItemExport implements
         /** KETERANGAN */
         $sheet->setCellValue('A' . ($lastRow + 1), 'Keterangan:');
         $sheet->mergeCells('A' . ($lastRow + 2) . ':D' . ($lastRow + 2));
-        $sheet->getStyle('A' . ($lastRow + 2))->getFont()->setBold(true);
+
+        $sheet->getStyle('A' . ($lastRow + 2))
+            ->getFont()->setBold(true);
 
         $sheet->getStyle('A' . ($lastRow + 1) . ':G' . ($lastRow + 3))
             ->applyFromArray([
                 'borders' => [
                     'outline' => [
                         'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['argb' => 'FF000000'],
                     ],
                 ],
             ]);
 
-        $sheet->setCellValue(
-            'A' . ($lastRow + 4),
-            '*1 Lampirkan dokumentasi pembuangan/penyerahan.'
-        );
+        $row1 = $lastRow + 4;
+        $row2 = $lastRow + 5;
 
-        $sheet->setCellValue(
-            'G' . ($lastRow + 4),
-            'Rev 03;02/11/21'
-        );
+        $sheet->setCellValue('A' . $row1,
+            '*1 Lampirkan dokumentasi pembuangan/penyerahan.');
+        $sheet->getStyle('A' . $row1)->getFont()->setSize(6);
 
-        $sheet->getStyle('G' . ($lastRow + 4))->applyFromArray([
+        $sheet->setCellValue('G' . $row1, 'Rev 03;02/11/21');
+        $sheet->getStyle('G' . $row1)->applyFromArray([
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_RIGHT,
             ],
             'font' => [
-                'size' => 10,
+                'size' => 6,
             ],
         ]);
 
-        $sheet->setCellValue(
-            'A' . ($lastRow + 5),
-            'CC/Tembusan : Putih : Dept. Penerbit - Merah : GA - Kuning : ACC'
-        );
+        $sheet->setCellValue('A' . $row2,
+            'CC/Tembusan : Putih : Dept. Penerbit - Merah : GA - Kuning : ACC');
+        $sheet->getStyle('A' . $row2)->getFont()->setSize(6);
 
-        $sheet->setCellValue('A' . ($lastRow + 6), 'CARGLOSS');
-        $sheet->setCellValue('G' . ($lastRow + 6), 'FO-GDG-02');
-
-        $sheet->getStyle('A' . ($lastRow + 6))->applyFromArray([
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
-            'font' => [
-                'bold' => true,
-                'color' => ['argb' => 'FFFF0000'],
-                'size' => 14
-            ]
-        ]);
-
-        $sheet->getStyle('G' . ($lastRow + 6))->applyFromArray([
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
-            'font' => ['bold' => true, 'size' => 14]
-        ]);
+        $sheet->getRowDimension($row1)->setRowHeight(10);
+        $sheet->getRowDimension($row2)->setRowHeight(7.2);
     }
 }
