@@ -8,6 +8,8 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithDrawings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -16,7 +18,8 @@ class RekapExport implements
     FromCollection,
     WithStyles,
     WithCustomStartCell,
-    WithColumnWidths
+    WithColumnWidths,
+    WithDrawings
 {
     const TABLE_START_ROW = 11;
 
@@ -29,7 +32,26 @@ class RekapExport implements
 
     /**
      * =====================
-     * DATA (FIX JUMLAH)
+     * LOGO (DI A1)
+     * =====================
+     */
+    public function drawings()
+    {
+        $drawing = new Drawing();
+        $drawing->setName('Logo');
+        $drawing->setDescription('Logo Cargloss');
+        $drawing->setPath(public_path('images/cargloss.png')); 
+        $drawing->setCoordinates('A1');
+
+        // ukuran logo bisa diubah
+        $drawing->setHeight(25);
+
+        return $drawing;
+    }
+
+    /**
+     * =====================
+     * DATA
      * =====================
      */
     public function collection(): Collection
@@ -50,13 +72,13 @@ class RekapExport implements
             })->implode(', ');
 
             $rows->push([
-                $no++,                         // A
-                strtoupper($kategori),         // B
-                $merkSeri,                     // C
-                '',                            // D (merge)
-                '',                            // E (merge)
-                '',                            // F (merge)
-                $items->sum('jumlah'),         // G ← JUMLAH FIX
+                $no++,
+                strtoupper($kategori),
+                $merkSeri,
+                '',
+                '',
+                '',
+                $items->sum('jumlah'),
             ]);
         }
 
@@ -80,24 +102,12 @@ class RekapExport implements
             'G' => 14.33,
         ];
     }
-
-    /**
-     * =====================
-     * STYLING (TIDAK DIUBAH)
-     * =====================
-     */
+    
     public function styles(Worksheet $sheet)
     {
+
         /** HEADER ATAS */
-        $sheet->setCellValue('A1', 'CARGLOSS');
-        $sheet->getStyle('A1')->applyFromArray([
-            'font' => [
-                'bold' => true,
-                'size' => 14,
-                'color' => ['argb' => 'FFFF0000']
-            ],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
-        ]);
+        // tulisan CARGLOSS dihapus karena sudah diganti logo
 
         $sheet->setCellValue('G1', 'FO-GDG-02');
         $sheet->getStyle('G1')->applyFromArray([
@@ -136,7 +146,7 @@ class RekapExport implements
 
         /** INFO */
         $sheet->setCellValue('A7', 'Dept.: MIS');
-        $sheet->setCellValue('A8', 'No.: __________________');
+        $sheet->setCellValue('A8', 'No.    : __________________');
         $sheet->setCellValue('F8', 'Tanggal: ____ / ____ / ______');
 
         /** HEADER TABEL */
@@ -204,49 +214,27 @@ class RekapExport implements
             ]);
 
         $row1 = $lastRow + 4;
-$row2 = $lastRow + 5;
+        $row2 = $lastRow + 5;
 
-$sheet->setCellValue('A' . $row1,
-    '*1 Lampirkan dokumentasi pembuangan/penyerahan.');
-$sheet->getStyle('A' . $row1)
-    ->getFont()
-    ->setSize(6);
+        $sheet->setCellValue('A' . $row1,
+            '*1 Lampirkan dokumentasi pembuangan/penyerahan.');
+        $sheet->getStyle('A' . $row1)->getFont()->setSize(6);
 
-$sheet->setCellValue('G' . $row1, 'Rev 03;02/11/21');
-$sheet->getStyle('G' . $row1)->applyFromArray([
-    'alignment' => [
-        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
-    ],
-    'font' => [
-        'size' => 6,
-    ],
-]);;
-
-$sheet->setCellValue('A' . $row2,
-    'CC/Tembusan : Putih : Dept. Penerbit - Merah : GA - Kuning : ACC');
-$sheet->getStyle('A' . $row2)
-    ->getFont()
-    ->setSize(6);
-
-// tinggi baris 0.1 inch
-$sheet->getRowDimension($row1)->setRowHeight(7.2);
-$sheet->getRowDimension($row2)->setRowHeight(7.2);
-
-        $sheet->setCellValue('A' . ($lastRow + 6), 'CARGLOSS');
-        $sheet->setCellValue('G' . ($lastRow + 6), 'FO-GDG-02');
-
-        $sheet->getStyle('A' . ($lastRow + 6))->applyFromArray([
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
+        $sheet->setCellValue('G' . $row1, 'Rev 03;02/11/21');
+        $sheet->getStyle('G' . $row1)->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_RIGHT,
+            ],
             'font' => [
-                'bold' => true,
-                'color' => ['argb' => 'FFFF0000'],
-                'size' => 14
-            ]
+                'size' => 6,
+            ],
         ]);
 
-        $sheet->getStyle('G' . ($lastRow + 6))->applyFromArray([
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
-            'font' => ['bold' => true, 'size' => 14]
-        ]);
+        $sheet->setCellValue('A' . $row2,
+            'CC/Tembusan : Putih : Dept. Penerbit - Merah : GA - Kuning : ACC');
+        $sheet->getStyle('A' . $row2)->getFont()->setSize(6);
+
+        $sheet->getRowDimension($row1)->setRowHeight(10);
+        $sheet->getRowDimension($row2)->setRowHeight(7.2);
     }
 }
