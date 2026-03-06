@@ -39,7 +39,7 @@ class SowExport implements
         $drawing->setName('Logo PT'); 
         $drawing->setDescription('Logo perusahaan'); 
         $drawing->setPath($logoPath); // pastikan file ada 
-        $drawing->setHeight(20);// sesuaikan tinggi agar proporsional$drawing->setCoordinates('A4'); // posisi tepat di sel A4 $drawing->setOffsetX(10); // geser sedikit ke kanan $drawing->setOffsetY(5); // geser sedikit ke bawah
+        $drawing->setHeight(10);// sesuaikan tinggi agar proporsional$drawing->setCoordinates('A4'); // posisi tepat di sel A4 $drawing->setOffsetX(10); // geser sedikit ke kanan $drawing->setOffsetY(5); // geser sedikit ke bawah
         $drawing->setCoordinates('A4'); // posisi tepat di sel A4 
         $drawing->setOffsetX(10); // geser sedikit ke kanan 
         $drawing->setOffsetY(2); // geser sedikit ke bawah

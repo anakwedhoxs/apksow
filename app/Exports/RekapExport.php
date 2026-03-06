@@ -153,10 +153,10 @@ class RekapExport implements
         $headerRow = self::TABLE_START_ROW - 1;
 
         $sheet->setCellValue("A{$headerRow}", 'No');
-        $sheet->setCellValue("B{$headerRow}", 'Kategori');
+        $sheet->setCellValue("B{$headerRow}", 'Part No.');
         $sheet->mergeCells("C{$headerRow}:F{$headerRow}");
-        $sheet->setCellValue("C{$headerRow}", 'Merk / Seri');
-        $sheet->setCellValue("G{$headerRow}", 'Jumlah');
+        $sheet->setCellValue("C{$headerRow}", 'Nama Barang');
+        $sheet->setCellValue("G{$headerRow}", 'Qty');
 
         $sheet->getStyle("A{$headerRow}:G{$headerRow}")->applyFromArray([
             'font' => [

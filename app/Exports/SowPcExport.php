@@ -48,7 +48,7 @@ class SowPcExport implements
         $drawing->setName('Logo');
         $drawing->setDescription('Logo Perusahaan');
         $drawing->setPath($logoPath);
-        $drawing->setHeight(25);
+        $drawing->setHeight(10);
         $drawing->setCoordinates('A4');
         $drawing->setOffsetX(10);
         $drawing->setOffsetY(5);
