@@ -154,11 +154,7 @@ class SowExport implements
         /** Style header */
         $sheet->getStyle('A6:L7')->applyFromArray([
             'font' => ['bold' => true],
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical' => Alignment::VERTICAL_CENTER,
-                'wrapText' => true
-            ],
+            'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
             'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'E5E7EB']],
             'borders' => ['allBorders' => ['borderStyle' => 'thin']],
         ]);
@@ -182,3 +178,4 @@ class SowExport implements
         }
     }
 }
+
