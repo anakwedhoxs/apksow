@@ -205,10 +205,11 @@ class SOWResource extends Resource
                 Tables\Columns\TextColumn::make('nomor_perbaikan'),
                 Tables\Columns\TextColumn::make('hostname.nama')
                     ->label('Hostname')
-                    ->default('-')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('divisi'),
-                Tables\Columns\TextColumn::make('pic.nama')->label('PIC')->default('-')->searchable(),
+                Tables\Columns\TextColumn::make('pic.nama')
+                    ->label('PIC')
+                    ->searchable(),
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
                         'success' => false,

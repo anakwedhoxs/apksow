@@ -61,7 +61,7 @@ class DokumentasiExport implements FromCollection, WithStyles
 
             // posisi di dalam cell
             $drawing->setOffsetX(10);
-            $drawing->setOffsetY(5);
+            $drawing->setOffsetY(2);
 
             $drawing->setWorksheet($sheet);
                 }

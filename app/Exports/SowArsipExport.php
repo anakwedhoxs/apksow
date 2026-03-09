@@ -6,18 +6,16 @@ use App\Models\SowArsipItem;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithDrawings;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
-
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class SowArsipExport implements
     FromCollection,
     WithMapping,
-    ShouldAutoSize,
     WithStyles,
     WithCustomStartCell,
     WithDrawings
@@ -43,14 +41,14 @@ class SowArsipExport implements
             default => public_path('images/Logo_cargloss_Paint.png'),
         };
 
-        $drawing = new Drawing();
-        $drawing->setName('Logo PT');
-        $drawing->setDescription('Logo perusahaan');
-        $drawing->setPath($logoPath);
-        $drawing->setHeight(10);
-        $drawing->setCoordinates('A4');
-        $drawing->setOffsetX(10);
-        $drawing->setOffsetY(2);
+        $drawing = new Drawing(); 
+        $drawing->setName('Logo PT'); 
+        $drawing->setDescription('Logo perusahaan'); 
+        $drawing->setPath($logoPath); 
+        $drawing->setHeight(15);
+        $drawing->setCoordinates('A5'); 
+        $drawing->setOffsetX(10); 
+        $drawing->setOffsetY(15);
 
         return [$drawing];
     }
@@ -97,28 +95,37 @@ class SowArsipExport implements
     /* ================= STYLES ================= */
     public function styles(Worksheet $sheet)
     {
+        /** Ukuran baris dan kolom */
+        $sheet->getRowDimension(5)->setRowHeight(25);
+
+        $columns = [
+            'A' => 3, 'B' => 10, 'C' => 10, 'D' => 10, 'E' => 10, 'F' => 8,
+            'G' => 12, 'H' => 10, 'I' => 10, 'J' => 5, 'K' => 15, 'L' => 15
+        ];
+
+        foreach ($columns as $col => $width) {
+            $sheet->getColumnDimension($col)->setWidth($width);
+        }
+
         /** Judul */
-        $sheet->mergeCells('E3:G3');
-        $sheet->setCellValue('E3', 'S.O.W (Stock Out Work)');
-        $sheet->getStyle('E3')->applyFromArray([
+        $sheet->mergeCells('D3:F3');
+        $sheet->setCellValue('D3', 'S.O.W (Stock Out Work)');
+        $sheet->getStyle('D3')->applyFromArray([
             'font' => ['bold' => true, 'size' => 14],
             'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
         ]);
 
         /** Tanda tangan */
-        $sheet->setCellValue('I2', 'Dibuat');
-        $sheet->setCellValue('J2', 'Diketahui');
-        $sheet->setCellValue('K2', 'Disetujui');
-        $sheet->setCellValue('L2', 'Diterima');
-
-        $sheet->setCellValue('K4', 'GM');
-        $sheet->setCellValue('L4', 'GA');
-
-        $sheet->getStyle('I2:L4')->applyFromArray([
-            'font' => ['bold' => true],
-            'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
-            'borders' => ['allBorders' => ['borderStyle' => 'thin']],
-        ]);
+        $ttdPath = public_path('images/ttd-1.png');
+        $drawing = new Drawing();
+        $drawing->setName('TTD');
+        $drawing->setDescription('Tanda Tangan');
+        $drawing->setPath($ttdPath);
+        $drawing->setCoordinates('H1');
+        $drawing->setHeight(105);
+        $drawing->setOffsetX(10);
+        $drawing->setOffsetY(2);
+        $drawing->setWorksheet($sheet);
 
         /** Header tabel */
         $sheet->setCellValue('A6', 'No');
@@ -129,8 +136,10 @@ class SowArsipExport implements
         $sheet->setCellValue('F6', 'Divisi');
         $sheet->setCellValue('G6', 'Tanggal Penggunaan');
         $sheet->setCellValue('H6', 'Tanggal Perbaikan');
+
         $sheet->mergeCells('I6:J6');
         $sheet->setCellValue('I6', 'SPPI');
+
         $sheet->setCellValue('K6', 'Nomor Perbaikan');
         $sheet->setCellValue('L6', 'Keterangan');
 
@@ -141,39 +150,34 @@ class SowArsipExport implements
             $sheet->mergeCells("{$col}6:{$col}7");
         }
 
+        /** Style header */
         $sheet->getStyle('A6:L7')->applyFromArray([
             'font' => ['bold' => true],
-            'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+                'wrapText' => true
+            ],
             'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'E5E7EB']],
             'borders' => ['allBorders' => ['borderStyle' => 'thin']],
         ]);
 
+        /** Border & Wrap semua data */
         $lastRow = $sheet->getHighestRow();
+
         $sheet->getStyle("A8:L{$lastRow}")->applyFromArray([
-            'borders' => ['allBorders' => ['borderStyle' => 'thin']],
+            'borders' => ['allBorders' => ['borderStyle' => 'thin']]
         ]);
 
-        $lastRow = $sheet->getHighestRow();
+        // Wrap text untuk semua kolom A–L
+        $sheet->getStyle("A8:L{$lastRow}")
+            ->getAlignment()
+            ->setWrapText(true)
+            ->setVertical(Alignment::VERTICAL_CENTER);
 
-        // Checklist Helpdesk & Form rata tengah
-        $sheet->getStyle("I8:J{$lastRow}")->getAlignment()
-            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)
-            ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-
-        // Supaya nomor juga rata tengah
-        $sheet->getStyle("A8:A{$lastRow}")->getAlignment()
-            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)
-            ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-
-        // Tanggal rata tengah
-        $sheet->getStyle("G8:H{$lastRow}")->getAlignment()
-            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)
-            ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-
-        // Nomor perbaikan rata tengah
-        $sheet->getStyle("K8:K{$lastRow}")->getAlignment()
-            ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT)
-            ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-
+        // Auto height agar wrap terlihat
+        for ($i = 8; $i <= $lastRow; $i++) {
+            $sheet->getRowDimension($i)->setRowHeight(-1);
+        }
     }
 }
