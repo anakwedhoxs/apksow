@@ -50,7 +50,7 @@ class SowCpuExport implements
         $drawing->setHeight(15);
         $drawing->setCoordinates('A5');
         $drawing->setOffsetX(10);
-        $drawing->setOffsetY(2);
+        $drawing->setOffsetY(15);
 
         return [$drawing];
     }
