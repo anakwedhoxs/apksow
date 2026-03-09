@@ -45,7 +45,7 @@ class SowArsipExport implements
         $drawing->setName('Logo PT'); 
         $drawing->setDescription('Logo perusahaan'); 
         $drawing->setPath($logoPath); 
-        $drawing->setHeight(15);
+        $drawing->setHeight(10);
         $drawing->setCoordinates('A5'); 
         $drawing->setOffsetX(10); 
         $drawing->setOffsetY(15);
