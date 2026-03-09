@@ -47,8 +47,8 @@ class SowCpuExport implements
         $drawing->setName('Logo PT');
         $drawing->setDescription('Logo perusahaan');
         $drawing->setPath($logoPath);
-        $drawing->setHeight(10);
-        $drawing->setCoordinates('A4');
+        $drawing->setHeight(15);
+        $drawing->setCoordinates('A5');
         $drawing->setOffsetX(10);
         $drawing->setOffsetY(2);
 
@@ -101,6 +101,17 @@ class SowCpuExport implements
     /* ================= STYLING ================= */
     public function styles(Worksheet $sheet)
 {
+        $sheet->getRowDimension(5)->setRowHeight(25);
+
+        $columns = [
+            'A' => 3, 'B' => 12, 'C' => 10, 'D' => 10, 'E' => 11, 'F' => 11,
+            'G' => 12, 'H' => 5, 'I' => 15, 'J' => 15, 'K' => 20
+        ];
+
+        foreach ($columns as $col => $width) {
+            $sheet->getColumnDimension($col)->setWidth($width);
+        }
+
     /* ================= JUDUL ================= */
     $sheet->mergeCells('E3:G3');
     $sheet->setCellValue('E3', 'HARDWARE: CPU SET');
@@ -114,31 +125,17 @@ class SowCpuExport implements
     ]);
 
     /* ================= BLOK TTD ================= */
-    $sheet->setCellValue('I2', 'Dibuat');
-    $sheet->setCellValue('J2', 'Diketahui');
-    $sheet->setCellValue('K2', 'Disetujui');
-    $sheet->setCellValue('L2', 'Diterima');
+    $ttdPath = public_path('images/ttd-1.png');
 
-    $sheet->setCellValue('K4', 'GM');
-    $sheet->setCellValue('L4', 'GA');
-
-    $sheet->getRowDimension(2)->setRowHeight(18);
-    $sheet->getRowDimension(3)->setRowHeight(45);
-    $sheet->getRowDimension(4)->setRowHeight(18);
-
-    $sheet->getStyle('I2:L4')->applyFromArray([
-        'borders' => [
-            'allBorders' => ['borderStyle' => 'thin'],
-        ],
-    ]);
-
-    $sheet->getStyle('I2:L2')->applyFromArray([
-        'font' => ['bold' => true],
-    ]);
-
-    $sheet->getStyle('I2:L4')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-    $sheet->getStyle('I2:L4')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
-
+        $drawing = new Drawing();
+        $drawing->setName('TTD');
+        $drawing->setDescription('Tanda Tangan');
+        $drawing->setPath($ttdPath);
+        $drawing->setCoordinates('H1');
+        $drawing->setHeight(105);
+        $drawing->setOffsetX(10);
+        $drawing->setOffsetY(2);
+        $drawing->setWorksheet($sheet);
 
     /* ================= HEADER TABEL ================= */
     $sheet->setCellValue('A6', 'No');
@@ -162,80 +159,30 @@ class SowCpuExport implements
         $sheet->mergeCells("{$col}6:{$col}7");
     }
 
-    /* ================= STYLE HEADER ================= */
-    $sheet->getStyle('A6:K6')->applyFromArray([
-        'font' => ['bold' => true],
-        'alignment' => [
-            'horizontal' => Alignment::HORIZONTAL_CENTER,
-            'vertical'   => Alignment::VERTICAL_CENTER,
-        ],
-        'fill' => [
-            'fillType' => 'solid',
-            'startColor' => ['rgb' => 'E5E7EB'],
-        ],
-    ]);
+    /** Style header */
+        $sheet->getStyle('A6:K7')->applyFromArray([
+            'font' => ['bold' => true],
+            'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
+            'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'E5E7EB']],
+            'borders' => ['allBorders' => ['borderStyle' => 'thin']],
+        ]);
 
-    $sheet->getStyle('G7:H7')->applyFromArray([
-        'font' => ['bold' => true],
-        'alignment' => [
-            'horizontal' => Alignment::HORIZONTAL_CENTER,
-            'vertical'   => Alignment::VERTICAL_CENTER,
-        ],
-        'fill' => [
-            'fillType' => 'solid',
-            'startColor' => ['rgb' => 'F3F4F6'],
-        ],
-    ]);
+        /** Border & Wrap semua data */
+        $lastRow = $sheet->getHighestRow();
 
-    $sheet->getRowDimension(6)->setRowHeight(25);
-    $sheet->getRowDimension(7)->setRowHeight(20);
+        $sheet->getStyle("A8:K{$lastRow}")->applyFromArray([
+            'borders' => ['allBorders' => ['borderStyle' => 'thin']]
+        ]);
 
+        // Wrap text untuk semua kolom A–L
+        $sheet->getStyle("A6:K{$lastRow}")
+            ->getAlignment()
+            ->setWrapText(true)
+            ->setVertical(Alignment::VERTICAL_CENTER);
 
-    /* ================= BORDER TABLE ================= */
-    $lastRow = $sheet->getHighestRow();
-
-    $sheet->getStyle("A6:K{$lastRow}")
-        ->getBorders()
-        ->getAllBorders()
-        ->setBorderStyle('thin');
-
-
-    /* ================= CUSTOM WIDTH ================= */
-    $sheet->getColumnDimension('A')->setWidth(5);
-    $sheet->getColumnDimension('B')->setWidth(20);
-    $sheet->getColumnDimension('C')->setWidth(20);
-    $sheet->getColumnDimension('D')->setWidth(20);
-    $sheet->getColumnDimension('E')->setWidth(18);
-    $sheet->getColumnDimension('F')->setWidth(18);
-    $sheet->getColumnDimension('G')->setWidth(12);
-    $sheet->getColumnDimension('H')->setWidth(12);
-    $sheet->getColumnDimension('I')->setWidth(22);
-    $sheet->getColumnDimension('J')->setWidth(20);
-    $sheet->getColumnDimension('K')->setWidth(20);
-    $sheet->getColumnDimension('L')->setWidth(15); // untuk TTD
-
-
-    /* ================= WRAP TEXT ================= */
-    $sheet->getStyle("A8:K{$lastRow}")
-        ->getAlignment()
-        ->setWrapText(true);
-
-    $sheet->getStyle("A8:K{$lastRow}")
-        ->getAlignment()
-        ->setVertical(Alignment::VERTICAL_TOP);
-
-
-    /* ================= ALIGNMENT DATA ================= */
-    $sheet->getStyle("A8:A{$lastRow}")
-        ->getAlignment()
-        ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-    $sheet->getStyle("G8:H{$lastRow}")
-        ->getAlignment()
-        ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-    $sheet->getStyle("E8:F{$lastRow}")
-        ->getAlignment()
-        ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-}
+        // Auto height agar wrap terlihat
+        for ($i = 6; $i <= $lastRow; $i++) {
+            $sheet->getRowDimension($i)->setRowHeight(-1);
+        }
+    }
 }
