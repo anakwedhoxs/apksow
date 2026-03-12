@@ -53,6 +53,7 @@ class HostnameResource extends Resource
                     ->label('Import Excel')
                     ->icon('heroicon-o-arrow-up-tray')
                     ->color('primary')
+                    ->visible(fn () => auth()->user()->role === 'super_admin') 
                     ->form([
                         FileUpload::make('file')
                             ->label('Upload File Excel')
